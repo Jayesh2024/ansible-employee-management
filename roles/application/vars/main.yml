@@ -1,0 +1,4 @@
+---
+app_source_dir: /opt/employee-app/source
+app_deploy_dir: /opt/employee-app/deploy
+app_log_dir: /var/log/employee-app

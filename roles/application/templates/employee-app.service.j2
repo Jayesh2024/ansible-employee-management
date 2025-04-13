@@ -1,0 +1,17 @@
+[Unit]
+Description=Employee Management Application
+After=network.target
+
+[Service]
+User={{ app_user }}
+Group={{ app_user }}
+WorkingDirectory={{ app_deploy_dir }}
+# Memory settings optimized for t2.micro instances
+ExecStart=/usr/bin/java -Xms256m -Xmx512m -jar {{ app_deploy_dir }}/employee-management.jar
+SuccessExitStatus=143
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

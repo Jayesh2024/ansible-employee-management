@@ -1,0 +1,34 @@
+# This is a configuration file for PostgreSQL to listen on all interfaces
+
+# Connection settings
+listen_addresses = '*'
+port = 5432
+max_connections = 100
+
+# Memory settings - adjusted for t2.micro (limited memory)
+shared_buffers = 128MB
+work_mem = 4MB
+maintenance_work_mem = 32MB
+
+# Logging
+log_destination = 'stderr'
+logging_collector = on
+log_directory = 'log'
+log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
+log_min_duration_statement = 250ms
+
+# Autovacuum settings
+autovacuum = on
+autovacuum_max_workers = 1
+autovacuum_naptime = 1min
+
+# Checkpoints
+checkpoint_timeout = 5min
+checkpoint_completion_target = 0.9
+
+# WAL settings
+wal_buffers = 4MB
+synchronous_commit = off
+
+# Query tuning
+effective_cache_size = 256MB

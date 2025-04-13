@@ -1,0 +1,53 @@
+---
+- name: Install dependencies for Java
+  ansible.builtin.apt:
+    name:
+      - wget
+      - apt-transport-https
+      - ca-certificates
+      - gnupg
+    state: present
+
+- name: Check if Java is installed
+  ansible.builtin.command: java -version
+  register: java_version
+  ignore_errors: true
+  changed_when: false
+
+- name: Download and install Amazon Corretto JDK 21
+  when: java_version.rc != 0
+  block:
+    - name: Add Amazon Corretto repository key
+      ansible.builtin.get_url:
+        url: https://apt.corretto.aws/corretto.key
+        dest: /tmp/corretto.key
+        mode: '0644'
+
+    - name: Import Amazon Corretto repository key
+      ansible.builtin.apt_key:
+        file: /tmp/corretto.key
+        state: present
+
+    - name: Add Amazon Corretto repository
+      ansible.builtin.apt_repository:
+        repo: deb https://apt.corretto.aws stable main
+        state: present
+
+    - name: Install Amazon Corretto 21
+      ansible.builtin.apt:
+        name: java-21-amazon-corretto-jdk
+        state: present
+        update_cache: true
+
+- name: Set JAVA_HOME environment variable
+  ansible.builtin.lineinfile:
+    path: /etc/profile.d/java.sh
+    line: 'export JAVA_HOME=/usr/lib/jvm/java-21-amazon-corretto'
+    create: true
+    state: present
+    mode: '0644'  # Added mode for file permissions
+
+- name: Make Java script executable
+  ansible.builtin.file:
+    path: /etc/profile.d/java.sh
+    mode: '0755'

@@ -1,0 +1,12 @@
+---
+timezone: "UTC"
+app_user: app
+app_group: app
+app_git_repo: https://github.com/Jayesh2026/employee-management.git
+app_git_branch: main
+
+# Database configuration that applies to both app and db servers
+db_name: employee_db
+db_user: employee_app
+db_password: "employeehfgkj527dfag@dfdhhg"  # Use vault in production
+# jwt_secret: "random-jwt-secret-string"  # Use vault in production

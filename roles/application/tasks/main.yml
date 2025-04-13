@@ -1,0 +1,90 @@
+---
+- name: Create application directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: '0755'
+  loop:
+    - "{{ app_deploy_dir }}"
+    - "{{ app_source_dir }}"
+    - "{{ app_log_dir }}"
+
+- name: Install Gradle
+  ansible.builtin.unarchive:
+    src: https://services.gradle.org/distributions/gradle-8.3-bin.zip
+    dest: /opt
+    remote_src: true
+    creates: /opt/gradle-8.3
+  register: gradle_installed
+
+- name: Create symbolic link for Gradle
+  ansible.builtin.file:
+    src: /opt/gradle-8.3
+    dest: /opt/gradle
+    state: link
+
+- name: Add Gradle to PATH
+  ansible.builtin.lineinfile:
+    path: /etc/profile.d/gradle.sh
+    line: 'export PATH=$PATH:/opt/gradle/bin'
+    create: true
+    state: present
+    mode: '0644'
+    owner: root
+    group: root
+
+- name: Make Gradle script executable
+  ansible.builtin.file:
+    path: /etc/profile.d/gradle.sh
+    mode: '0755'
+
+- name: Clone application repository
+  ansible.builtin.git:
+    repo: "{{ app_git_repo }}"
+    dest: "{{ app_source_dir }}"
+    version: "{{ app_git_branch }}"
+  become_user: "{{ app_user }}"
+
+- name: Configure application properties
+  ansible.builtin.template:
+    src: application.properties.j2
+    dest: "{{ app_source_dir }}/src/main/resources/application.properties"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: '0644'
+
+- name: Build application with Gradle
+  ansible.builtin.command: /opt/gradle/bin/gradle build -x test
+  args:
+    chdir: "{{ app_source_dir }}"
+  become_user: "{{ app_user }}"
+  environment:
+    JAVA_HOME: "{{ java_home }}"
+  changed_when: false  # treat the task as never changed
+
+- name: Copy JAR file to deploy directory
+  ansible.builtin.copy:
+    src: "{{ app_source_dir }}/build/libs/employee-management-0.0.1-SNAPSHOT.jar"
+    dest: "{{ app_deploy_dir }}/employee-management.jar"
+    remote_src: true
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: '0644'
+
+- name: Create systemd service file
+  ansible.builtin.template:
+    src: employee-app.service.j2
+    dest: /etc/systemd/system/employee-app.service
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload systemd
+
+- name: Start and enable application service
+  ansible.builtin.systemd:
+    name: employee-app
+    state: started
+    enabled: true
+  notify: verify application is running

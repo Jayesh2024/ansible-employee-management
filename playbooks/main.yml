@@ -1,0 +1,19 @@
+---
+- name: Configure common settings for all servers
+  hosts: aws_instances
+  become: true
+  roles:
+    - common
+
+- name: Configure PostgreSQL on database servers
+  hosts: db_servers
+  become: true
+  roles:
+    - postgres
+
+- name: Configure Java and Application on app servers
+  hosts: app_servers
+  become: true
+  roles:
+    - java
+    - application

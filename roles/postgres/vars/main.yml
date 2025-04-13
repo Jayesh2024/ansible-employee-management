@@ -1,0 +1,4 @@
+---
+db_name: employee_db
+db_user: employee_app
+db_password: "{{ vault_db_password | default('strong-password-here') }}"

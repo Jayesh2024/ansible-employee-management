@@ -1,0 +1,6 @@
+---
+- name: Setup and configure PostgreSQL database
+  hosts: db_servers
+  become: true
+  roles:
+    - postgres
