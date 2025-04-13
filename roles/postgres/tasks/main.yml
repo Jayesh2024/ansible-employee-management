@@ -18,7 +18,7 @@
       - python3-psycopg2
     state: present
     update_cache: true
-  notify: restart postgresql
+  notify: Restart postgresql
 
 - name: Configure PostgreSQL to listen on all interfaces
   ansible.builtin.template:
@@ -27,16 +27,16 @@
     owner: postgres
     group: postgres
     mode: '0644'
-  notify: restart postgresql
+  notify: Restart postgresql
 
 - name: Configure PostgreSQL authentication
   ansible.builtin.template:
     src: pg_hba.conf.j2
-    dest: /etc/postgresql/14/main/pg_hba.conf
+    dest: /etc/postgresql/14/main/pg_hba.conf.j2
     owner: postgres
     group: postgres
     mode: '0640'
-  notify: restart postgresql
+  notify: Restart postgresql
 
 - name: Ensure PostgreSQL is started and enabled
   ansible.builtin.systemd:

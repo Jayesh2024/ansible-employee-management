@@ -2,7 +2,7 @@
 timezone: "UTC"
 app_user: app
 app_group: app
-app_git_repo: https://github.com/Jayesh2026/employee-management.git
+app_git_repo: https://github.com/Jayesh2024/employee-management.git
 app_git_branch: main
 
 # Database configuration that applies to both app and db servers

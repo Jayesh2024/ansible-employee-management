@@ -22,6 +22,7 @@
     name:
       - psycopg2-binary
     state: present
+    extra_args: --break-system-packages
 
 - name: Set timezone
   community.general.timezone:
@@ -43,4 +44,4 @@
   loop:
     - 22
     - "{{ '8081' if inventory_hostname in groups['app_servers'] else '5432' }}"
-  notify: enable ufw
+  notify: Enable ufw
